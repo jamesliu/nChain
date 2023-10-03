@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable, List, Union
 from .base_embedder import BaseEmbedder
 from sentence_transformers import SentenceTransformer
 
@@ -16,13 +16,12 @@ class SentenceTransformersEmbedder(BaseEmbedder):
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
         self.model = SentenceTransformer(model_name)
 
-    def embed(self, chunks: Iterable[List[str]]) -> Iterable[List[float]]:
+    def embed(self, data: Union[List[List[str]], Iterable[List[str]]]) -> Iterable[List[List[float]]]:
         """
-        Convert chunks of text data into embeddings using Sentence Transformers.
-        
-        :param chunks: Chunks of text data.
-        :return: An iterable of embeddings.
+        Generate embeddings for the input data using the SentenceTransformer model.
+
+        :param data: List of chunks where each chunk is a list of sentences.
+        :return: Iterable of lists where each list represents embeddings for a chunk.
         """
-        for chunk in chunks:
-            embeddings = self.model.encode(chunk)
-            yield embeddings
+        for chunk in data:
+            yield self.model.encode(chunk, convert_to_numpy=True, show_progress_bar=False).tolist()

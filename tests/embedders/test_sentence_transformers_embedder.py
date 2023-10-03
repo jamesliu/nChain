@@ -25,6 +25,8 @@ def test_embedding_dimension(model_name, embedding_size):
     data = [["This is a sample sentence.", "Embedding works fine!"]]  # 2 sentences as a chunk
     embedder = SentenceTransformersEmbedder(model_name)
     embeddings = list(embedder.embed(data))
+    assert len(embeddings) == 1
+    assert len(embeddings[0]) == 2
     
     assert len(embeddings[0][0]) == embedding_size
     assert len(embeddings[0][1]) == embedding_size
