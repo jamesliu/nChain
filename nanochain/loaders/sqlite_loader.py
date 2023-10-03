@@ -1,35 +1,31 @@
 import sqlite_utils
+from typing import List, Type
+from pydantic import BaseModel
+from nanochain.models.generic_model import GenericModel
 
 class SQLiteLoader:
-    def __init__(self, db_path):
+    def __init__(self, db_path: str):
         """
         Initialize the SQLiteLoader with a path to the SQLite database.
-        
-        Args:
-        - db_path (str): Path to the SQLite database file.
+
+        :param db_path: Path to the SQLite database file.
         """
-        self.db_path = db_path
         self.db = sqlite_utils.Database(db_path)
-    
-    def get_tables(self):
+
+    def get_table_names(self) -> List[str]:
         """
-        Fetch all table names from the SQLite database.
-        
-        Returns:
-        - List of table names.
+        Retrieve the names of all tables in the SQLite database.
+
+        :return: List of table names.
         """
         return self.db.table_names()
-    
-    def fetch_table_data(self, table_name, limit=None):
+
+    def fetch_all_data(self, table_name: str) -> List[Type[BaseModel]]:
         """
-        Fetch data from a specific table.
+        Fetch all rows of data from the specified table and structure them using a Pydantic model.
         
-        Args:
-        - table_name (str): Name of the table to fetch data from.
-        - limit (int, optional): Limit the number of rows fetched. If None, fetch all rows.
-        
-        Returns:
-        - List of dictionaries with table data.
+        :param table_name: Name of the SQLite table from which data needs to be fetched.
+        :return: List of Pydantic model instances representing rows of data from the specified table.
         """
-        table = self.db[table_name]
-        return list(table.rows_where(limit=limit))
+        data = self.db[table_name].rows
+        return [GenericModel(**row) for row in data]
