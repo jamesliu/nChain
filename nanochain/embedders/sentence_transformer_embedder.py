@@ -1,7 +1,8 @@
 from sentence_transformers import SentenceTransformer
 
+models = {"all-MiniLM-L6-v2":"120MB", "all-mpnet-base-v2":"420MB", "paraphrase-MiniLM-L6-v2":"120MB"}
 class SentenceTransformerEmbedder:
-    def __init__(self, model_name='paraphrase-MiniLM-L6-v2'):
+    def __init__(self, model_name='all-MiniLM-L6-v2'):
         """
         Initialize the embedder with a specific Sentence Transformer model.
         
