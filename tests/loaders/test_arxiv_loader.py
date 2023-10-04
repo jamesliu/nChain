@@ -33,13 +33,9 @@ def test_load_data(setup_teardown):
     # Check if the PDF was downloaded to the expected directory
     pdf_path = Path(metadata["pdf_path"])
     assert pdf_path.exists()
-"""
-def test_extract_pdf_content(setup_teardown):
-    loader = setup_teardown
-    pdf_path = Path(SAMPLE_DOWNLOAD_DIR) / f"{SAMPLE_PAPER_ID}.pdf"
-    content = loader.extract_pdf_content(str(pdf_path))
+
+    pdf_content = loader.extract_pdf_content(metadata["pdf_path"])
 
     # Basic check to see if content was extracted
-    assert isinstance(content, str)
-    assert len(content) > 0
-"""
+    assert isinstance(pdf_content, str)
+    assert len(pdf_content) > 0

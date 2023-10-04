@@ -1,4 +1,4 @@
-from pypdf import PdfFileReader
+from pypdf import PdfReader
 from .base_loader import BaseLoader
 
 class PdfLoader(BaseLoader):
@@ -11,7 +11,7 @@ class PdfLoader(BaseLoader):
         :return: Extracted text from the PDF.
         """
         with open(source, 'rb') as file:
-            reader = PdfFileReader(file)
+            reader = PdfReader(file)
             text = ""
             for page in reader.pages:
                 text += page.extract_text()
