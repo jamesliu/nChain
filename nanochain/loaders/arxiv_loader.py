@@ -25,14 +25,15 @@ class ArxivLoader(BaseLoader):
             "url": str
         }, pk="paper_id", if_not_exists=True)
 
-    def load_data(self, paper_id: str, download_dir: Optional[str] = None) -> dict:
+    def load_data(self, source: str, download_dir: Optional[str] = None) -> dict:
         """
         Load and extract metadata and content from an arXiv paper.
-
+        :source: The arXiv paper ID or URL.
         :param paper_id: The arXiv paper ID.
         :param download_dir: Optional directory path to save the downloaded PDF.
         :return: A dictionary with metadata and content of the paper.
         """
+        paper_id = source.split("/")[-1]
         paper = next(arxiv.Search(id_list=[paper_id]).results())
         
         if not download_dir:
