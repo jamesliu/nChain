@@ -1,9 +1,10 @@
 # cli.py
 
 import click
+from nanochain import user_dir
 from nanochain.app import App
 
-app = App()
+app = App(db_path=str(user_dir() / "nanochain.db"))
 
 @click.group()
 def cli():

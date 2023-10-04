@@ -1,4 +1,5 @@
 from nanochain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
+from nanochain.vectordb import SQLiteVectorDB
 from nanochain.utils.detection import detect_data_type
 from nanochain.embedders import SentenceTransformersEmbedder
 
@@ -6,6 +7,7 @@ class App:
     def __init__(self, db_path=":memory:"):
         self.db_path = db_path
         self.embedder = SentenceTransformersEmbedder()
+        self.vectordb = SQLiteVectorDB(self.db_path)
 
         # Loaders
         self.loaders = {
@@ -24,7 +26,17 @@ class App:
         embedded_data = self.embedder.embed(data)
         # Store embedded_data in the database (this part would need further implementation)
 
-    def query(self, query_str: str):
-        embedded_query = self.embedder.embed(query_str)
-        # Search the database for relevant data (this part would need further implementation)
-        return "Sample result based on query"  # Placeholder
+    def query(self, user_query: str, top_k: int = 5):
+        # 1. Convert user query into an embedding
+        query_embedding = self.embedder.embed_text(user_query)
+
+        # 2. Search for similar embeddings in the SQLiteVectorDB
+        similar_ids = self.vector_db.search(query_embedding, top_k)
+
+        # 3. Fetch and return results
+        results = []
+        for idx in similar_ids:
+            data = self.vector_db.get_vector_data(idx)
+            results.append(data)
+        
+        return results
