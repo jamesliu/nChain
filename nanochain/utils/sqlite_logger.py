@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # Configure logging to use the SQLiteHandler
     logging.basicConfig(level=logging.INFO)  # Log all events from INFO level and above
     logger = logging.getLogger("nanoLLM")
-    logger.addHandler(SQLiteHandler(LOG_DB))
+    logger.addHandler(SQLiteHandler())
     
     # Test the logging configuration
     logger.info("Logging system initialized", extra={"event": "system_init"})
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 def setup_logger():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("nanoLLM")
-    logger.addHandler(SQLiteHandler(NANOLLM_DB))
+    logger.addHandler(SQLiteHandler(str(logs_db_path)))
     #Avoid propagating the log messages to the root logger to prevent duplicate messages such as console output.
     logger.propagate = False
     return logger
