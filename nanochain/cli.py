@@ -1,7 +1,7 @@
 # cli.py
 
 import click
-from nanochain import App
+from nanochain.app import App
 
 app = App()
 
