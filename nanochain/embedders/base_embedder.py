@@ -1,17 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, List
+from typing import List
 
 class BaseEmbedder(ABC):
-    """
-    Abstract base class for all embedders. Defines the basic interface that every embedder should have.
-    """
-
     @abstractmethod
-    def embed(self, chunks: Iterable[Any]) -> Iterable[List[float]]:
+    def embed(self, text: str) -> List[float]:
+        pass
+    
+    @property
+    @abstractmethod
+    def dimension(self) -> int:
         """
-        Convert data chunks into embeddings.
-
-        :param chunks: Data chunks to be converted.
-        :return: An iterable of embeddings.
+        Return the dimensionality of the embeddings produced by the embedder.
         """
         pass
