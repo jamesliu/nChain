@@ -26,9 +26,10 @@ class DataPipeline:
         """
         # Load data
         data = self.loader.load_data(source)
-        
+        content = data["content"]
+        metadata = data["metadata"]
         # Chunk data
-        chunks = self.chunker.chunk(data)
+        chunks = self.chunker.chunk(content)
         chunk_indices = list(range(len(chunks)))
         
         # Embed chunks

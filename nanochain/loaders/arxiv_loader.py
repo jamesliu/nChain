@@ -54,7 +54,7 @@ class ArxivLoader(BaseLoader):
 
         content = self.extract_pdf_content(pdf_path)
         
-        return content
+        return {"content":content, "metadata":metadata}
 
     def extract_pdf_content(self, pdf_path: str) -> str:
         """

@@ -29,7 +29,7 @@ class SQLiteVectorDB(VectorDatabase):
         self.index = AnnoyIndex(dimension, metric)
         rows = list(self.db["collections"].rows_where("name = ?", [collection]))
         if len(rows) > 0:
-            self.collection = rows[0].to_dict()
+            self.collection = rows[0]
         else:
             self.collection = {
                 "name": collection,
@@ -49,7 +49,8 @@ class SQLiteVectorDB(VectorDatabase):
             row = self.db["vectors"].insert({"vector": blob, "metadata": metadata_string})
             idx = row.last_pk
             self.index.add_item(idx, vector)
-        self.collection["stored_at"] = datetime.now()
+    
+        self.db["collections"].update(self.collection["name"], {"stored_at":datetime.now()})
         self.vectors_updated = True
 
     def refresh_index(self):
@@ -60,7 +61,7 @@ class SQLiteVectorDB(VectorDatabase):
                     numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
                     self.index.add_item(row["id"], numpy_array.tolist())
                 self.index.build(10)
-                self.collection["indexed_at"] = datetime.now()
+                self.db["collections"].update(self.collection["name"], {"indexed_at":datetime.now()})
         self.vectors_updated = False
 
     def search_vectors(self, query_vector: List[float], top_k: int) -> List[Tuple[int, float, dict]]:
