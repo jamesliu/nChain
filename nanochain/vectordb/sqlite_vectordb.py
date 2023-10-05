@@ -4,22 +4,42 @@ import sqlite_utils
 from typing import List, Tuple, Optional, Dict
 from .base_vectordb import VectorDatabase
 from annoy import AnnoyIndex
+from datetime import datetime
 
 class SQLiteVectorDB(VectorDatabase):
 
-    def __init__(self, dimension: int, db_path=None, metric: str = "euclidean"):
+    def __init__(self, dimension: int, db_path=None, metric: str = "euclidean", collection:str="default"):
         self.dimension = dimension
         if db_path:
             self.db = sqlite_utils.Database(db_path)
         else:
             self.db = sqlite_utils.Database(memory=True)
+        self.db["collections"].create({
+            "name": str,
+            "dimension": int,
+            "metric": str,
+            "indexed_at":datetime, 
+            "stored_at": datetime,
+        }, pk="name", if_not_exists=True)
         self.db["vectors"].create({
             "id": int,
             "vector": bytes,
             "metadata": str
         }, pk="id", if_not_exists=True)
         self.index = AnnoyIndex(dimension, metric)
-        self.index_built = False
+        rows = list(self.db["collections"].rows_where("name = ?", [collection]))
+        if len(rows) > 0:
+            self.collection = rows[0].to_dict()
+        else:
+            self.collection = {
+                "name": collection,
+                "dimension": dimension,
+                "metric": metric,
+                "indexed_at": None,
+                "stored_at": None
+            }
+            self.db["collections"].upsert(self.collection, pk="name")
+        self.refresh_index()
 
     def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict]) -> None:
         for vector, meta in zip(vectors, metadata_list):
@@ -29,24 +49,22 @@ class SQLiteVectorDB(VectorDatabase):
             row = self.db["vectors"].insert({"vector": blob, "metadata": metadata_string})
             idx = row.last_pk
             self.index.add_item(idx, vector)
-        self.vector_updated = True
+        self.collection["stored_at"] = datetime.now()
+        self.vectors_updated = True
 
     def refresh_index(self):
-        # Drop the current index and create a new one
-        self.index = AnnoyIndex(self.dimension, "euclidean")
-        
-        # Retrieve all vectors from the SQLite database and add them to the Annoy index
-        for row in self.db["vectors"].rows_where():
-            numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
-            self.index.add_item(row["id"], numpy_array.tolist())
-        
-        # Build the Annoy index
-        self.index.build(10)
+        if self.collection["stored_at"]:
+            if self.collection["indexed_at"] is None or self.collection["stored_at"] > self.collection["indexed_at"]:
+                self.index = AnnoyIndex(self.dimension, self.collection["metric"])
+                for row in self.db["vectors"].rows_where():
+                    numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
+                    self.index.add_item(row["id"], numpy_array.tolist())
+                self.index.build(10)
+                self.collection["indexed_at"] = datetime.now()
         self.vectors_updated = False
-    
 
     def search_vectors(self, query_vector: List[float], top_k: int) -> List[Tuple[int, float, dict]]:
-        if self.vector_updated:
+        if self.vectors_updated:
             self.refresh_index()
 
         indices, distances = self.index.get_nns_by_vector(query_vector, top_k, include_distances=True)

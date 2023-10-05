@@ -35,15 +35,16 @@ class App:
         logger.info(f"Added source: {source} to the database.")
 
     def query(self, user_query: str, top_k: int = 5):
-        # 1. Convert user query into an embedding
-        query_embedding = self.embedder.embed_text(user_query)
+        """Query the database for similar embeddings."""
+        query_embedding = self.embedder.embed(user_query)  # Use the correct method
 
         # 2. Search for similar embeddings in the SQLiteVectorDB
-        similar_ids = self.vector_db.search(query_embedding, top_k)
+        results = self.vectordb.search_vectors(query_embedding, top_k)
+        similar_ids = self.vectordb.search_vectors(query_embedding, top_k)
 
         # 3. Fetch and return results
         results = []
-        for idx in similar_ids:
+        for idx, distance, metadata in similar_ids:
             data = self.vector_db.get_vector_data(idx)
             results.append(data)
         
