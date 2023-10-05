@@ -4,7 +4,7 @@ from typing import List, Tuple, Optional
 class VectorDatabase(ABC):
 
     @abstractmethod
-    def store_vectors(self, vectors: List[List[float]], metadata: List[dict]) -> None:
+    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict]) -> None:
         """
         Store vectors along with associated metadata.
 

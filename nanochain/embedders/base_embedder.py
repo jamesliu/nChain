@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Union
 
 class BaseEmbedder(ABC):
     @abstractmethod
-    def embed(self, text: str) -> List[float]:
+    def embed(self, text: Union[str, List[str]]) -> Union[List[float], List[List[float]]]:
         pass
     
     @property

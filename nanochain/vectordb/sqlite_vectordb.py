@@ -21,8 +21,8 @@ class SQLiteVectorDB(VectorDatabase):
         self.index = AnnoyIndex(dimension, metric)
         self.index_built = False
 
-    def store_vectors(self, vectors: List[List[float]], metadata: List[dict]) -> None:
-        for vector, meta in zip(vectors, metadata):
+    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict]) -> None:
+        for vector, meta in zip(vectors, metadata_list):
             numpy_array = np.array(vector, dtype=np.float32)
             blob = numpy_array.tobytes()
             metadata_string = json.dumps(meta)
