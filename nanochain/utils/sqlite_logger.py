@@ -94,7 +94,7 @@ if __name__ == '__main__':
     
     # Fetch the latest log entries from the SQLite database
     # Connect to the SQLite database
-    conn = sqlite3.connect(LOG_DB)
+    conn = sqlite3.connect(str(logs_db_path()))
     cursor = conn.cursor()
     
     # Fetch the last 5 log entries
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 def setup_logger():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("nanoLLM")
-    logger.addHandler(SQLiteHandler(str(logs_db_path)))
+    logger.addHandler(SQLiteHandler(str(logs_db_path())))
     #Avoid propagating the log messages to the root logger to prevent duplicate messages such as console output.
     logger.propagate = False
     return logger
