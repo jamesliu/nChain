@@ -51,8 +51,10 @@ class ArxivLoader(BaseLoader):
         
         # Save metadata to the database
         self.db["papers"].upsert(metadata, pk="paper_id")
+
+        content = self.extract_pdf_content(pdf_path)
         
-        return metadata
+        return content
 
     def extract_pdf_content(self, pdf_path: str) -> str:
         """
