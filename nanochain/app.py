@@ -1,14 +1,17 @@
+from nanochain.pipeline import DataPipeline
 from nanochain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
 from nanochain.vectordb import SQLiteVectorDB
 from nanochain.utils.detection import detect_data_type
+from nanochain.utils.sqlite_logger import logger
 from nanochain.embedders import SentenceTransformersEmbedder
+from nanochain import user_dir
 
 class App:
-    def __init__(self, db_path=":memory:"):
+    def __init__(self, db_path=":memory:", vectordb_path: str = str(user_dir() / "embeddings.db")):
         self.db_path = db_path
+        self.vectordb_path = vectordb_path
         self.embedder = SentenceTransformersEmbedder()
-        self.vectordb = SQLiteVectorDB(self.db_path)
-
+        self.vectordb = SQLiteVectorDB(dimension=self.embedder.dimension, db_path=vectordb_path)
         # Loaders
         self.loaders = {
             "ARXIV_PAPER": ArxivLoader(self.db_path),
@@ -17,14 +20,19 @@ class App:
         }
 
     def add(self, source: str, data_type: str = None):
+        """Adds a new source to the database."""
         if data_type is None:
             data_type = detect_data_type(source)
+
         loader = self.loaders.get(data_type)
         if not loader:
             raise ValueError(f"Unsupported data type: {data_type}")
-        data = loader.load_data(source)
-        embedded_data = self.embedder.embed(data)
-        # Store embedded_data in the database (this part would need further implementation)
+
+        # Create a DataPipeline instance
+        pipeline = DataPipeline(loader=loader, embedder=self.embedder, vectordb=self.vectordb)
+        # Process the source using the pipeline
+        pipeline.process(source)
+        logger.info(f"Added source: {source} to the database.")
 
     def query(self, user_query: str, top_k: int = 5):
         # 1. Convert user query into an embedding

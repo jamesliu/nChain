@@ -11,13 +11,13 @@ class SQLiteVectorDB(VectorDatabase):
         self.dimension = dimension
         if db_path:
             self.db = sqlite_utils.Database(db_path)
-        self.db = self.db or sqlite_utils.Database(memory=True)
+        else:
+            self.db = sqlite_utils.Database(memory=True)
         self.db["vectors"].create({
             "id": int,
             "vector": bytes,
             "metadata": str
         }, pk="id", if_not_exists=True)
-        
         self.index = AnnoyIndex(dimension, metric)
         self.index_built = False
 

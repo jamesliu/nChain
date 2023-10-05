@@ -1,3 +1,4 @@
+from .base_loader import BaseLoader
 from .text_loader import TextLoader
 from .pdf_loader import PdfLoader
 from .arxiv_loader import ArxivLoader

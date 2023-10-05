@@ -2,21 +2,19 @@ from typing import List, Union
 from nanochain.loaders import BaseLoader
 from nanochain.chunkers import BaseChunker, TextChunker
 from nanochain.embedders import BaseEmbedder
-from nanochain.embedders import SentenceTransformersEmbedder
-from nanochain.vectordb.sqlite_vectordb import SQLiteVectorDB
+from nanochain.vectordb import VectorDatabase
 from nanochain.utils.sqlite_logger import logger
-from nanochain import user_dir
 
 class DataPipeline:
     def __init__(self, 
                  loader: BaseLoader,
                  embedder: BaseEmbedder,
-                 vectordb_path: str = str(user_dir() / "embeddings.db"),
+                 vectordb: VectorDatabase,
                  chunker: BaseChunker = TextChunker()):
         self.loader = loader
         self.chunker = chunker
         self.embedder = embedder
-        self.vectordb = SQLiteVectorDB(dimension=embedder.dimension, db_path=vectordb_path)
+        self.vectordb = vectordb
         
     def process(self, source: str, metadata: dict = None, store_text: bool = True, detail: bool = False) -> Union[None, List[dict]]:
         """
