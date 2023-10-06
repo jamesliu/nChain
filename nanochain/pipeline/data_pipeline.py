@@ -10,7 +10,7 @@ class DataPipeline:
                  loader: BaseLoader,
                  embedder: BaseEmbedder,
                  vectordb: VectorDatabase,
-                 chunker: BaseChunker = TextChunker()):
+                 chunker: BaseChunker):
         self.loader = loader
         self.chunker = chunker
         self.embedder = embedder

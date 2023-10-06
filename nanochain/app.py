@@ -1,15 +1,27 @@
 from nanochain.pipeline import DataPipeline
 from nanochain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
+from nanochain.chunkers import TextChunker
 from nanochain.vectordb import SQLiteVectorDB
 from nanochain.utils.detection import detect_data_type
 from nanochain.utils.sqlite_logger import logger
 from nanochain.embedders import SentenceTransformersEmbedder
 from nanochain import user_dir
-from datetime import datetime
+from time import time
+import sqlite_utils
 
 class App:
-    def __init__(self, db_path=":memory:", vectordb_path: str = str(user_dir() / "embeddings.db")):
+    def __init__(self, db_path=":memory:", vectordb_path: str = str(user_dir() / "embeddings.db"), indexdb_path: str = str(user_dir() / "index.ann")):
         self.db_path = db_path
+        self.db = sqlite_utils.Database(db_path)
+        self.db["query_results"].create({
+            "query": str,
+            "data_type": str,
+            "embedding_id": int,
+            "score": float,
+            "content": str,
+            "metadata": str,
+            "created": int
+        }, pk=("query", "data_type", "embedding_id"), if_not_exists=True)
         self.vectordb_path = vectordb_path
         self.embedder = SentenceTransformersEmbedder()
         # Loaders
@@ -20,7 +32,10 @@ class App:
         }
 
         self.vectordbs = {
-            "ARXIV_PAPER": SQLiteVectorDB(dimension=self.embedder.dimension, db_path=vectordb_path, collection="axiv_paper")
+            "ARXIV_PAPER": SQLiteVectorDB(dimension=self.embedder.dimension, indexdb_path=indexdb_path, db_path=vectordb_path, collection="axiv_paper")
+        }
+        self.chunkers = {
+            "ARXIV_PAPER": TextChunker(max_chars=1000)
         }
 
     def add(self, source: str, data_type: str = None):
@@ -29,12 +44,17 @@ class App:
             data_type = detect_data_type(source)
 
         loader = self.loaders.get(data_type)
-        vectordb = self.vectordbs.get(data_type)
         if not loader:
-            raise ValueError(f"Unsupported data type: {data_type}")
+            raise ValueError(f"Unsupported data type: {data_type}", f"Supported data types: {self.loaders.keys()}")
+        chunker = self.chunkers.get(data_type)
+        if not chunker:
+            raise ValueError(f"Unsupported data type: {data_type}", f"Supported data types: {self.chunkers.keys()}")
+        vectordb = self.vectordbs.get(data_type)
+        if not vectordb:
+            raise ValueError(f"Unsupported data type: {data_type}", f"Supported data types: {self.vectordbs.keys()}")
 
         # Create a DataPipeline instance
-        pipeline = DataPipeline(loader=loader, embedder=self.embedder, vectordb=vectordb)
+        pipeline = DataPipeline(loader=loader, embedder=self.embedder, chunker=chunker, vectordb=vectordb)
         # Process the source using the pipeline
         pipeline.process(source)
         logger.info(f"Added source: {source} to the database.")
@@ -46,14 +66,15 @@ class App:
         results = []
         for data_type, vectordb in self.vectordbs.items():
             #Search for similar embeddings in the SQLiteVectorDB
-            similar_ids = vectordb.search_vectors(query_embedding, top_k)
+            similar_entries = vectordb.search_vectors(query_embedding, top_k)
 
-            #Fetch and return results
-            for idx, distance, metadata in similar_ids:
-                 self.db['query_results'].insert(
-                     {"query": user_query, "data_type": data_type, "id": idx, "distance": distance, "metadata": metadata,
-                      "created_at": datetime.now()})
-                 data = vectordb.get_vector_data(idx)
-                 results.append(data)
+            # Store Query Result
+            for entry in similar_entries:
+                self.db['query_results'].insert(
+                     {"query": user_query, "data_type": data_type, "embedding_id": entry.id, "score": entry.score, 
+                      "content":entry.content, "metadata": entry.metadata,
+                      "created": int(time())})
+
+            results.extend(similar_entries)
         
         return results

@@ -4,17 +4,11 @@ import sqlite_utils
 from sqlite_utils.db import Table
 from typing import cast, List, Tuple, Optional, Union, Dict, Any
 from .base_vectordb import VectorDatabase
+from nanochain.models.core import Entry
 from annoy import AnnoyIndex
-from dataclasses import dataclass
 import struct
 import time
-
-@dataclass
-class Entry:
-    id: str
-    score: Optional[float]
-    content: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+import os
 
 def encode(values):
     return struct.pack("<" + "f" * len(values), *values)
@@ -31,8 +25,9 @@ def decode_from_numpy_to_list(binary):
 
 class SQLiteVectorDB(VectorDatabase):
 
-    def __init__(self, dimension: int, db_path=None, metric: str = "euclidean", collection:str="default"):
+    def __init__(self, dimension: int, indexdb_path: str, db_path=None, metric: str = "euclidean", collection:str="default"):
         self.dimension = dimension
+        self.indexdb_path = indexdb_path
         if db_path:
             self.db = sqlite_utils.Database(db_path)
         else:
@@ -48,7 +43,6 @@ class SQLiteVectorDB(VectorDatabase):
             "stored_at": int,
         }, pk="id", not_null=["name", "model"], if_not_exists=True)
         self.db["collections"].create_index(["name"], unique=True, if_not_exists=True)
-
 
         # Create the 'embeddings' table
         self.db["embeddings"].create({
@@ -77,11 +71,14 @@ class SQLiteVectorDB(VectorDatabase):
             self.db["collections"].insert(collection, replace=True)
             self.collection = list(self.db["collections"].rows_where("name = ?", [collection]))
 
-        self.index = AnnoyIndex(dimension, metric)
-        self.refresh_index()
+        self.index = AnnoyIndex(self.dimension, self.collection["metric"])
+        if  os.path.exists(indexdb_path):
+            self.index.load(indexdb_path)  # Load the Annoy index from disk
+        else:
+            self.build_index()
+        self.vectors_updated = False
 
     def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict], chunks: list[Union[str, bytes]], store:bool) -> None:
-        stored_vectors = []
         hashes = [self.content_hash(content) for content in chunks]
         # Create a mapping of hash to its index for quick look-up
         hash_to_index = {hash: index for index, hash in enumerate(hashes)}
@@ -124,28 +121,33 @@ class SQLiteVectorDB(VectorDatabase):
             self.db["collections"].update(self.collection["id"], {"stored_at":int(time.time())})
             self.vectors_updated = True
 
+    def build_index(self):
+        for row in self.db["embeddings"].rows_where():
+            numpy_array = np.frombuffer(row["embedding"], dtype=np.float32)
+            self.index.add_item(row["id"], numpy_array.tolist())
+        self.index.build(10)
+        self.db["collections"].update(self.collection["id"], {"indexed_at":int(time.time())})
+        print("Index built", self.indexdb_path)
+        self.index.save(self.indexdb_path)
+
     def refresh_index(self):
         if self.collection["stored_at"]:
             if self.collection["indexed_at"] is None or self.collection["stored_at"] > self.collection["indexed_at"]:
-                self.index = AnnoyIndex(self.dimension, self.collection["metric"])
-                for row in self.db["embeddings"].rows_where():
-                    numpy_array = np.frombuffer(row["embedding"], dtype=np.float32)
-                    self.index.add_item(row["id"], numpy_array.tolist())
-                self.index.build(10)
-                self.db["collections"].update(self.collection["id"], {"indexed_at":int(time.time())})
+                self.build_index()
+               
         self.vectors_updated = False
-
-    def search_vectors(self, query_vector: List[float], top_k: int) -> List[Tuple[int, float, dict]]:
+        
+    def search_vectors(self, query_vector: List[float], top_k: int) -> List[Entry]:
         if self.vectors_updated:
             self.refresh_index()
 
         indices, distances = self.index.get_nns_by_vector(query_vector, top_k, include_distances=True)
-        breakpoint()        
         results = []
         for idx, distance in zip(indices, distances):
-            row = self.db["embedings"].get(idx)
+            row = self.db["embeddings"].get(idx)
             metadata = json.loads(row["metadata"])
-            results.append((idx, distance, row["content"], metadata))
+            similar_entry = Entry(id=row["id"], score=distance, content=row["content"], metadata=metadata)
+            results.append(similar_entry)
         return results
 
     def update_vector(self, index: int, new_vector: List[float], new_metadata: Optional[dict] = None) -> None:
