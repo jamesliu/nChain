@@ -6,7 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/nChain/badge/?version=stable)](http://nChain.readthedocs.org/en/stable/?badge=stable)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/jamesliu/nChain/blob/main/LICENSE)
 
-nChain is a Python package that provides a simple and efficient implementation of 
+nChain is a Python package that provides a simple and efficient implementation to create LLM bots over extensible dataset. 
 
 ## Installation
 
@@ -37,9 +37,6 @@ nchain query "Show me the Scaling Laws for Autoregressive Generative Modeling."
 nchain query "Show me the algorithm about Large Lanuage Model Decoding with Speculative Sampling."
 nchain query "How to handle streaming apps efficiently in LLM?"
 ```
-
-## Examples
-See the [examples](./examples) directory for more comprehensive usage examples.
 
 ## Documentation
 
