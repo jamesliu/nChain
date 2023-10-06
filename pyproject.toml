@@ -2,7 +2,7 @@
 name = "nChain"
 version = "0.11"
 description = "nchain is a flexible and efficent framework to create LLM bots over extensible dataset"
-authors = ["James Liu"]
+authors = ["James Liu" <james@bayjarvis.com>]
 license = "Apache License"
 readme = "README.md"
 
@@ -80,7 +80,7 @@ exclude = '''
 color = true
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.10,<3.13"
 python-dotenv = "^1.0.0"
 requests = "^2.31.0"
 openai = "^0.27.5"
