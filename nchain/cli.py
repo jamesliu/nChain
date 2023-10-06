@@ -13,7 +13,7 @@ def cli():
 @cli.command()
 @click.argument('url')
 def add(url):
-    """Add a resource to the nanochain app."""
+    """Add a resource to the nchain app."""
     app.add(url)
     click.echo(f"Added resource: {url}")
 

@@ -6,6 +6,6 @@ def user_dir():
     if chain_user_path:
         path = Path(chain_user_path)
     else:
-        path = Path(os.path.expanduser("~/.nanochain"))
+        path = Path(os.path.expanduser("~/.nchain"))
     path.mkdir(exist_ok=True, parents=True)
     return path

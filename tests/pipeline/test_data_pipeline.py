@@ -1,8 +1,8 @@
 import pytest
-from nanochain.pipeline.data_pipeline import DataPipeline
-from nanochain.loaders.arxiv_loader import ArxivLoader
-from nanochain.chunkers.text_chunker import TextChunker
-from nanochain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder
+from nchain.pipeline.data_pipeline import DataPipeline
+from nchain.loaders.arxiv_loader import ArxivLoader
+from nchain.chunkers.text_chunker import TextChunker
+from nchain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder
 from unittest.mock import patch
 from arxiv import Search
 

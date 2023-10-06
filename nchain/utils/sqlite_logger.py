@@ -4,7 +4,7 @@ import json
 from nchain import user_dir
 
 def logs_db_path():
-    return user_dir() / "nanochain.db"
+    return user_dir() / "logs.db"
 
 def _human_readable_size(size: int) -> str:
     """Convert a size in bytes to a human-readable format."""

@@ -1,5 +1,5 @@
 import pytest
-from nanochain.models.dynamic_model_generator import DynamicModelGenerator
+from nchain.models.dynamic_model_generator import DynamicModelGenerator
 from pydantic import BaseModel
 
 @pytest.fixture

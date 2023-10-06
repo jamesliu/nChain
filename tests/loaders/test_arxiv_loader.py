@@ -1,7 +1,7 @@
 import pytest
 import os
-from nanochain.loaders.arxiv_loader import ArxivLoader
-from nanochain import user_dir
+from nchain.loaders.arxiv_loader import ArxivLoader
+from nchain import user_dir
 from pathlib import Path
 
 # Constants

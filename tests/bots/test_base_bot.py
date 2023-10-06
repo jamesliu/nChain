@@ -1,4 +1,4 @@
-from nanochain.bots.base_bot import BaseBot
+from nchain.bots.base_bot import BaseBot
 
 def test_base_bot_methods():
     bot = BaseBot(None)

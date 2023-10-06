@@ -1,5 +1,5 @@
 import pytest
-from nanochain.loaders.sqlite_loader import SQLiteLoader
+from nchain.loaders.sqlite_loader import SQLiteLoader
 
 @pytest.fixture
 def sample_db_path():
