@@ -128,8 +128,8 @@ class SQLiteVectorDB(VectorDatabase):
         if self.collection["stored_at"]:
             if self.collection["indexed_at"] is None or self.collection["stored_at"] > self.collection["indexed_at"]:
                 self.index = AnnoyIndex(self.dimension, self.collection["metric"])
-                for row in self.db["vectors"].rows_where():
-                    numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
+                for row in self.db["embeddings"].rows_where():
+                    numpy_array = np.frombuffer(row["embedding"], dtype=np.float32)
                     self.index.add_item(row["id"], numpy_array.tolist())
                 self.index.build(10)
                 self.db["collections"].update(self.collection["id"], {"indexed_at":int(time.time())})
@@ -140,13 +140,12 @@ class SQLiteVectorDB(VectorDatabase):
             self.refresh_index()
 
         indices, distances = self.index.get_nns_by_vector(query_vector, top_k, include_distances=True)
-        
+        breakpoint()        
         results = []
         for idx, distance in zip(indices, distances):
-            row = self.db["vectors"].get(idx)
+            row = self.db["embedings"].get(idx)
             metadata = json.loads(row["metadata"])
-            results.append((idx, distance, metadata))
-            
+            results.append((idx, distance, row["content"], metadata))
         return results
 
     def update_vector(self, index: int, new_vector: List[float], new_metadata: Optional[dict] = None) -> None:
