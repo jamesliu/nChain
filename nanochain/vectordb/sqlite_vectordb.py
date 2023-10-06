@@ -74,8 +74,8 @@ class SQLiteVectorDB(VectorDatabase):
                 "indexed_at": None,
                 "stored_at": None
             }
-            self.collection =self.db["collections"].insert(collection, replace=True)
-        self.collection_id = self.collection["id"]
+            self.db["collections"].insert(collection, replace=True)
+            self.collection = list(self.db["collections"].rows_where("name = ?", [collection]))
 
         self.index = AnnoyIndex(dimension, metric)
         self.refresh_index()
@@ -92,7 +92,7 @@ class SQLiteVectorDB(VectorDatabase):
             select id, content_hash from embeddings
             where collection_id = ? and content_hash in ({})
             """.format(",".join("?" for _ in hashes)),
-            [self.collection_id] + hashes
+            [self.collection["id"]] + hashes
         )
         
         # Get the hash_index for each matching row
@@ -103,7 +103,7 @@ class SQLiteVectorDB(VectorDatabase):
                 cast(Table, self.db["embeddings"]).insert_all(
                     (
                         {
-                            "collection_id": self.collection_id,
+                            "collection_id": self.collection["id"],
                             "embedding": encode_as_numpy(embedding),
                             "content": content 
                             if (store and isinstance(content, str))
@@ -121,7 +121,7 @@ class SQLiteVectorDB(VectorDatabase):
                     replace=True,
                 )
     
-            self.db["collections"].update(self.collection_id, {"stored_at":time.time()})
+            self.db["collections"].update(self.collection["id"], {"stored_at":int(time.time())})
             self.vectors_updated = True
 
     def refresh_index(self):
@@ -132,7 +132,7 @@ class SQLiteVectorDB(VectorDatabase):
                     numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
                     self.index.add_item(row["id"], numpy_array.tolist())
                 self.index.build(10)
-                self.db["collections"].update(self.collection_id, {"indexed_at":time.time()})
+                self.db["collections"].update(self.collection["id"], {"indexed_at":int(time.time())})
         self.vectors_updated = False
 
     def search_vectors(self, query_vector: List[float], top_k: int) -> List[Tuple[int, float, dict]]:
