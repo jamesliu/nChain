@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
+import hashlib
 
 class VectorDatabase(ABC):
 
     @abstractmethod
-    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict]) -> None:
+    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict], chunks: List[Union[str, bytes]], store:bool) -> None:
         """
         Store vectors along with associated metadata.
 
@@ -43,3 +44,10 @@ class VectorDatabase(ABC):
         :param index: The index of the vector to be removed.
         """
         pass
+
+    @staticmethod
+    def content_hash(input: Union[str, bytes]) -> bytes:
+        "Hash content for deduplication. Override to change hashing behavior."
+        if isinstance(input, str):
+            input = input.encode("utf8")
+        return hashlib.sha256(input).digest()

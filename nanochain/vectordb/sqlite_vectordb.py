@@ -1,10 +1,33 @@
 import json
 import numpy as np
 import sqlite_utils
-from typing import List, Tuple, Optional, Dict
+from sqlite_utils.db import Table
+from typing import cast, List, Tuple, Optional, Union, Dict, Any
 from .base_vectordb import VectorDatabase
 from annoy import AnnoyIndex
-from datetime import datetime
+from dataclasses import dataclass
+import struct
+import time
+
+@dataclass
+class Entry:
+    id: str
+    score: Optional[float]
+    content: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+def encode(values):
+    return struct.pack("<" + "f" * len(values), *values)
+
+def encode_as_numpy(values):
+    return np.array(values, dtype=np.float32).tobytes()
+
+def decode(binary):
+    return struct.unpack("<" + "f" * (len(binary) // 4), binary)
+
+def decode_from_numpy_to_list(binary):
+    numpy_array = np.frombuffer(binary, dtype=np.float32)
+    return numpy_array.tolist()
 
 class SQLiteVectorDB(VectorDatabase):
 
@@ -14,44 +37,92 @@ class SQLiteVectorDB(VectorDatabase):
             self.db = sqlite_utils.Database(db_path)
         else:
             self.db = sqlite_utils.Database(memory=True)
+        # Create the 'collections' table
         self.db["collections"].create({
-            "name": str,
+            "id": int,     # unique identifier for each collection
+            "name": str,   # name of the collection
+            "model": str,   # identifier (or model ID) for the embedding model associated with the collection
             "dimension": int,
             "metric": str,
-            "indexed_at":datetime, 
-            "stored_at": datetime,
-        }, pk="name", if_not_exists=True)
-        self.db["vectors"].create({
-            "id": int,
-            "vector": bytes,
-            "metadata": str
-        }, pk="id", if_not_exists=True)
-        self.index = AnnoyIndex(dimension, metric)
+            "indexed_at":int, 
+            "stored_at": int,
+        }, pk="id", not_null=["name", "model"], if_not_exists=True)
+        self.db["collections"].create_index(["name"], unique=True, if_not_exists=True)
+
+
+        # Create the 'embeddings' table
+        self.db["embeddings"].create({
+            "collection_id": int,     # foreign key to reference the 'collections' table
+            "id": int,                # identifier for the entry
+            "embedding": "BLOB",      # embedded vector
+            "content": str,           # content in text format
+            "content_blob": "BLOB",   # content in binary format
+            "content_hash": "BLOB",   # hash of the content for deduplication
+            "metadata": str,          # additional metadata
+            "updated": int            # timestamp
+        }, pk=("id"), foreign_keys=[("collection_id", "collections", "id")], not_null=["collection_id", "id"], if_not_exists=True)  
+
         rows = list(self.db["collections"].rows_where("name = ?", [collection]))
         if len(rows) > 0:
             self.collection = rows[0]
         else:
-            self.collection = {
+            collection = {
                 "name": collection,
+                "model": "SentenceTransformers",
                 "dimension": dimension,
                 "metric": metric,
                 "indexed_at": None,
                 "stored_at": None
             }
-            self.db["collections"].upsert(self.collection, pk="name")
+            self.collection =self.db["collections"].insert(collection, replace=True)
+        self.collection_id = self.collection["id"]
+
+        self.index = AnnoyIndex(dimension, metric)
         self.refresh_index()
 
-    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict]) -> None:
-        for vector, meta in zip(vectors, metadata_list):
-            numpy_array = np.array(vector, dtype=np.float32)
-            blob = numpy_array.tobytes()
-            metadata_string = json.dumps(meta)
-            row = self.db["vectors"].insert({"vector": blob, "metadata": metadata_string})
-            idx = row.last_pk
-            self.index.add_item(idx, vector)
+    def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict], chunks: list[Union[str, bytes]], store:bool) -> None:
+        stored_vectors = []
+        hashes = [self.content_hash(content) for content in chunks]
+        # Create a mapping of hash to its index for quick look-up
+        hash_to_index = {hash: index for index, hash in enumerate(hashes)}
+        
+        # Fetch rows that match the provided hashes
+        matching_rows = self.db.query(
+            """
+            select id, content_hash from embeddings
+            where collection_id = ? and content_hash in ({})
+            """.format(",".join("?" for _ in hashes)),
+            [self.collection_id] + hashes
+        )
+        
+        # Get the hash_index for each matching row
+        existing_ids = [hash_to_index[row['content_hash']] for row in matching_rows]
+        filtered_items = [item + (hashes[idx], ) for idx, item in enumerate(zip(vectors, metadata_list, chunks)) if idx not in existing_ids]
+        if len(filtered_items) > 0:
+            with self.db.conn:
+                cast(Table, self.db["embeddings"]).insert_all(
+                    (
+                        {
+                            "collection_id": self.collection_id,
+                            "embedding": encode_as_numpy(embedding),
+                            "content": content 
+                            if (store and isinstance(content, str))
+                            else None,
+                            "content_blob": content 
+                            if (store and isinstance(content, bytes))
+                            else None,
+                            "content_hash": content_hash,
+                            "metadata": json.dumps(metadata) if metadata else None,
+                            "updated": int(time.time()),
+                        }
+                        for (embedding, metadata, content, content_hash) in filtered_items
+                       
+                    ),
+                    replace=True,
+                )
     
-        self.db["collections"].update(self.collection["name"], {"stored_at":datetime.now()})
-        self.vectors_updated = True
+            self.db["collections"].update(self.collection_id, {"stored_at":time.time()})
+            self.vectors_updated = True
 
     def refresh_index(self):
         if self.collection["stored_at"]:
@@ -61,7 +132,7 @@ class SQLiteVectorDB(VectorDatabase):
                     numpy_array = np.frombuffer(row["vector"], dtype=np.float32)
                     self.index.add_item(row["id"], numpy_array.tolist())
                 self.index.build(10)
-                self.db["collections"].update(self.collection["name"], {"indexed_at":datetime.now()})
+                self.db["collections"].update(self.collection_id, {"indexed_at":time.time()})
         self.vectors_updated = False
 
     def search_vectors(self, query_vector: List[float], top_k: int) -> List[Tuple[int, float, dict]]:

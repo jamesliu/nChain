@@ -16,7 +16,7 @@ class DataPipeline:
         self.embedder = embedder
         self.vectordb = vectordb
         
-    def process(self, source: str, metadata: dict = None, store_text: bool = True, detail: bool = False) -> Union[None, List[dict]]:
+    def process(self, source: str, metadata: dict = None, store: bool = True, detail: bool = False) -> Union[None, List[dict]]:
         """
         Processes the data source, chunks it, embeds it, and stores the embeddings.
         
@@ -39,12 +39,9 @@ class DataPipeline:
         if metadata is None:
             metadata = {}
         
-        if store_text:
-            metadatas = [{"chunk": chunk, "chunk_idx": idx, **metadata} for idx, chunk in zip(chunk_indices, chunks)]
-        else:
-            metadatas = [{"chunk_idx": idx, **metadata} for idx in chunk_indices]
+        metadatas = [{"chunk_idx": idx, **metadata} for idx in chunk_indices]
                 
-        self.vectordb.store_vectors(embeddings, metadata_list=metadatas)
+        self.vectordb.store_vectors(embeddings, metadata_list=metadatas, chunks=chunks, store=store)
         
         #logger.info(f"Processed and stored embeddings for source: {source}")
 
