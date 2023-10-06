@@ -4,7 +4,7 @@ import sqlite_utils
 from sqlite_utils.db import Table
 from typing import cast, List, Tuple, Optional, Union, Dict, Any
 from .base_vectordb import VectorDatabase
-from nanochain.models.core import Entry
+from nchain.models.core import Entry
 from annoy import AnnoyIndex
 import struct
 import time

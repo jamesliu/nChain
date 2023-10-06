@@ -1,9 +1,9 @@
 from typing import List, Union
-from nanochain.loaders import BaseLoader
-from nanochain.chunkers import BaseChunker, TextChunker
-from nanochain.embedders import BaseEmbedder
-from nanochain.vectordb import VectorDatabase
-from nanochain.utils.sqlite_logger import logger
+from nchain.loaders import BaseLoader
+from nchain.chunkers import BaseChunker, TextChunker
+from nchain.embedders import BaseEmbedder
+from nchain.vectordb import VectorDatabase
+from nchain.utils.sqlite_logger import logger
 
 class DataPipeline:
     def __init__(self, 

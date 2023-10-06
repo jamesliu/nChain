@@ -1,7 +1,7 @@
 import sqlite_utils
 from typing import List, Type
 from pydantic import BaseModel
-from nanochain.models.generic_model import GenericModel
+from nchain.models.generic_model import GenericModel
 
 class SQLiteLoader:
     def __init__(self, db_path: str):

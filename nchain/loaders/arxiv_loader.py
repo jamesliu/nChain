@@ -3,7 +3,7 @@ import sqlite_utils
 import os
 from .base_loader import BaseLoader
 from .pdf_loader import PdfLoader
-from nanochain import user_dir
+from nchain import user_dir
 from typing import Optional
 
 class ArxivLoader(BaseLoader):

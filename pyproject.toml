@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "nanochain"
-version = "0.0.1"
-description = "nanochain is a nimble framework to create LLM bots over extensible dataset"
+name = "nChain"
+version = "0.11"
+description = "nchain is a nimble framework to create LLM bots over extensible dataset"
 authors = ["James Liu"]
 license = "Apache License"
 readme = "README.md"

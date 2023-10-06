@@ -1,11 +1,11 @@
-from nanochain.pipeline import DataPipeline
-from nanochain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
-from nanochain.chunkers import TextChunker
-from nanochain.vectordb import SQLiteVectorDB
-from nanochain.utils.detection import detect_data_type
-from nanochain.utils.sqlite_logger import logger
-from nanochain.embedders import SentenceTransformersEmbedder
-from nanochain import user_dir
+from nchain.pipeline import DataPipeline
+from nchain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
+from nchain.chunkers import TextChunker
+from nchain.vectordb import SQLiteVectorDB
+from nchain.utils.detection import detect_data_type
+from nchain.utils.sqlite_logger import logger
+from nchain.embedders import SentenceTransformersEmbedder
+from nchain import user_dir
 from time import time
 import sqlite_utils
 
@@ -70,10 +70,10 @@ class App:
 
             # Store Query Result
             for entry in similar_entries:
-                self.db['query_results'].insert(
+                self.db['query_results'].upsert(
                      {"query": user_query, "data_type": data_type, "embedding_id": entry.id, "score": entry.score, 
                       "content":entry.content, "metadata": entry.metadata,
-                      "created": int(time())})
+                      "created": int(time())}, pk=("query", "data_type", "embedding_id"))
 
             results.extend(similar_entries)
         

@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 import json
-from nanochain import user_dir
+from nchain import user_dir
 
 def logs_db_path():
     return user_dir() / "nanochain.db"

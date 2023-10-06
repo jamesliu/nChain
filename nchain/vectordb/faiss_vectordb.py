@@ -35,16 +35,3 @@ class FaissVectorDB(VectorDatabase):
         # Fetch metadata for the resulting indices
         results = [(int(idx), float(dist), self.metadata[int(idx)]) for idx, dist in zip(indices[0], distances[0])]
         return results
-
-    def delete_vector(self, index: int) -> None:
-        # In an in-memory Faiss index, we don't have a direct delete.
-        # So, we reconstruct the index without the vector at the given index.
-        vectors = self.index.reconstruct_n(0, self.index.ntotal)
-        new_vectors = [v for i, v in enumerate(vectors) if i != index]
-        new_metadata = [m for i, m in enumerate(self.metadata) if i != index]
-        self.index = faiss.IndexFlatL2(vectors.shape[1])
-        self.store_vectors(new_vectors, new_metadata)
-
-    def update_vector(self, index: int, new_vector: List[float], new_metadata: Optional[dict] = None) -> None:
-        self.delete_vector(index)
-        self.store_vectors([new_vector], [new_metadata or self.metadata[index]])

@@ -1,7 +1,7 @@
 from typing import List, Union
 from .base_embedder import BaseEmbedder
 from sentence_transformers import SentenceTransformer
-from nanochain.utils.sqlite_logger import logger
+from nchain.utils.sqlite_logger import logger
 
 embedder_models = {
     "all-MiniLM-L6-v2": 384,  # Assuming this model produces embeddings of size 384
