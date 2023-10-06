@@ -6,7 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/nChain/badge/?version=stable)](http://nChain.readthedocs.org/en/stable/?badge=stable)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/jamesliu/nChain/blob/main/LICENSE)
 
-nChain is a Python package that provides a simple and efficient implementation to create LLM bots over extensible dataset. 
+nChain is a Python package that provides a flexible and efficient implementation to create LLM bots over extensible dataset. 
 
 ## Installation
 
