@@ -9,7 +9,7 @@ class SQLiteChunker(BaseChunker):
     def __init__(self, chunk_size: int = 100):
         self.chunk_size = chunk_size
 
-    def chunk_data(self, data: List[Dict]) -> Iterable[List[Dict]]:
+    def chunk(self, data: List[Dict]) -> Iterable[List[Dict]]:
         """
         Given a list of dictionary rows from SQLite, divide it into chunks.
         
