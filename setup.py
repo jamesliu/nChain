@@ -7,7 +7,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "click",
-        "annoy"
+        "annoy",
+        "arxiv"
         # ... other dependencies
     ],
     entry_points="""

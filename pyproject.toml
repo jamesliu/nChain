@@ -93,6 +93,7 @@ llama-hub = { version = "^0.0.29", optional = true }
 sentence-transformers = { version = "^2.2.2", optional = true }
 torch = { version = ">=2.0.0, !=2.0.1", optional = true }
 click = "^8.1.7"
+arxiv = "^1.4.8"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
