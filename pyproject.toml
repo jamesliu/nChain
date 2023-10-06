@@ -95,6 +95,7 @@ sentence-transformers = "^2.2.2"
 pydantic = "^2.4.2"
 numpy = "^1.26.0"
 annoy = "^1.17.3"
+faiss-gpu = "^1.7.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"

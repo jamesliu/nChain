@@ -29,9 +29,12 @@ pip install .
 Here are examples of how to use nChain to search ArXiv paper using embedding.
 
 ```bash
+nchain add https://arxiv.org/abs/1409.0473
 nchain add https://arxiv.org/abs/2010.14701
+nchain add https://arxiv.org/abs/2203.02155
 nchain add https://arxiv.org/abs/2302.01318v1
 nchain add https://arxiv.org/abs/2309.17453
+nchain add https://arxiv.org/abs/2310.02304
 
 nchain query "Show me the Scaling Laws for Autoregressive Generative Modeling."
 nchain query "Show me the algorithm about Large Lanuage Model Decoding with Speculative Sampling."
@@ -40,7 +43,7 @@ nchain query "How to handle streaming apps efficiently in LLM?"
 
 ## Documentation
 
-Full documentation is available [here](https://nanochain.readthedocs.io/en/latest/).
+Full documentation is available [here](https://nchain.readthedocs.io/en/latest/).
 
 ## Contributing
 

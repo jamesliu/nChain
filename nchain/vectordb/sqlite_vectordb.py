@@ -55,12 +55,11 @@ class SQLiteVectorDB(VectorDatabase):
             "metadata": str,          # additional metadata
             "updated": int            # timestamp
         }, pk=("id"), foreign_keys=[("collection_id", "collections", "id")], not_null=["collection_id", "id"], if_not_exists=True)  
-
         rows = list(self.db["collections"].rows_where("name = ?", [collection]))
         if len(rows) > 0:
             self.collection = rows[0]
         else:
-            collection = {
+            collection_row = {
                 "name": collection,
                 "model": "SentenceTransformers",
                 "dimension": dimension,
@@ -68,11 +67,11 @@ class SQLiteVectorDB(VectorDatabase):
                 "indexed_at": None,
                 "stored_at": None
             }
-            self.db["collections"].insert(collection, replace=True)
-            self.collection = list(self.db["collections"].rows_where("name = ?", [collection]))
+            self.db["collections"].insert(collection_row, replace=True)
+            self.collection = list(self.db["collections"].rows_where("name = ?", [collection]))[0]
 
-        self.index = AnnoyIndex(self.dimension, self.collection["metric"])
         if  os.path.exists(indexdb_path):
+            self.index = AnnoyIndex(self.dimension, self.collection["metric"])
             self.index.load(indexdb_path)  # Load the Annoy index from disk
         else:
             self.build_index()
@@ -117,16 +116,19 @@ class SQLiteVectorDB(VectorDatabase):
                     ),
                     replace=True,
                 )
-    
-            self.db["collections"].update(self.collection["id"], {"stored_at":int(time.time())})
+            
+            self.collection["stored_at"] = int(time.time())
+            self.db["collections"].update(self.collection["id"], {"stored_at":self.collection["stored_at"]})
             self.vectors_updated = True
 
     def build_index(self):
+        self.index = AnnoyIndex(self.dimension, self.collection["metric"])
         for row in self.db["embeddings"].rows_where():
             numpy_array = np.frombuffer(row["embedding"], dtype=np.float32)
             self.index.add_item(row["id"], numpy_array.tolist())
         self.index.build(10)
-        self.db["collections"].update(self.collection["id"], {"indexed_at":int(time.time())})
+        self.collection["indexed_at"] = int(time.time())
+        self.db["collections"].update(self.collection["id"], {"indexed_at":self.collection["indexed_at"]})
         print("Index built", self.indexdb_path)
         self.index.save(self.indexdb_path)
 
