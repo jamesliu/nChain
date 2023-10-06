@@ -1,17 +1,3 @@
-[project]
-name = "nChain"
-version = "0.11"
-description = "nchain is a flexible and efficent framework to create LLM bots over extensible dataset"
-readme = "README.md"
-authors = [{name = "James Liu"}]
-license = {text = "Apache-2.0"}
-classifiers = [
-    "Development Status :: 4 - Beta"
-]
-
-[project.optional-dependencies]
-test = ["pytest"]
-
 [tool.poetry]
 name = "nChain"
 version = "0.11"
