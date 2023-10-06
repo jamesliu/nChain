@@ -29,6 +29,10 @@ pip install .
 Here are examples of how to use nanoChain to search ArXiv paper using embedding.
 
 ```bash
+nchain add https://arxiv.org/abs/2010.14701
+nchain add https://arxiv.org/abs/2302.01318v1
+nchain query "Show me the Scaling Laws for Autoregressive Generative Modeling"
+nchain query "Show me the algorithm about Large Lanuage Model Decoding with Speculative Sampling"
 ```
 
 ## Examples
