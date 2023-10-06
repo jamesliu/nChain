@@ -1,5 +1,5 @@
 import pytest
-from nanochain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder, embedder_models
+from nchain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder, embedder_models
 
 
 @pytest.fixture

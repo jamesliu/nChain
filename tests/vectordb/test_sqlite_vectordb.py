@@ -1,5 +1,5 @@
 import pytest
-from nanochain.vectordb.sqlite_vectordb import SQLiteVectorDB
+from nchain.vectordb.sqlite_vectordb import SQLiteVectorDB
 import os
 
 DB_PATH = "tests/resources/test_sql_vector.db"

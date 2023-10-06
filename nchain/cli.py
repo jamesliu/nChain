@@ -20,7 +20,7 @@ def add(url):
 @cli.command()
 @click.argument('query')
 def query(query):
-    """Query the nanochain app."""
+    """Query the nchain app."""
     result = app.query(query)
     click.echo(f"Result: {result}")
 

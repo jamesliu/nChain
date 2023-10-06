@@ -1,5 +1,5 @@
 import pytest
-from nanochain.vectordb.faiss_vectordb import FaissVectorDB
+from nchain.vectordb.faiss_vectordb import FaissVectorDB
 
 def test_vector_storage_and_search():
     db = FaissVectorDB(dimension=2)

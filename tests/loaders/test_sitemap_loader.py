@@ -1,4 +1,4 @@
-from nanochain.loaders.sitemap_loader import SitemapLoader
+from nchain.loaders.sitemap_loader import SitemapLoader
 
 # Sample paths and URLs for testing purposes
 SAMPLE_SITEMAP_URL = 'https://blog.bayjarvis.com/sitemap.xml'

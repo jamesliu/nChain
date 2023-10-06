@@ -1,5 +1,5 @@
 import pytest
-from nanochain.chunkers.sentence_chunker import SentenceChunker
+from nchain.chunkers.sentence_chunker import SentenceChunker
 
 @pytest.fixture
 def sentence_chunker():

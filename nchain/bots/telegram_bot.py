@@ -36,8 +36,8 @@ class TelegramBot(BaseBot):
         return response.get('result', [])
 
 if __name__ == "__main__":
-    from nanochain.config.config_module import Config
-    from nanochain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder as Embedder 
+    from nchain.config.config_module import Config
+    from nchain.embedders.sentence_transformers_embedder import SentenceTransformersEmbedder as Embedder 
     config = Config()
     embedder = Embedder()
     telegram_bot = TelegramBot(embedder, config)

@@ -1,5 +1,5 @@
 import pytest
-from nanochain.app import App
+from nchain.app import App
 
 def test_app_add_and_query():
     app = App()

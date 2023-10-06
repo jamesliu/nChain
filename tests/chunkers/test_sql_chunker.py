@@ -1,5 +1,5 @@
 import pytest
-from nanochain.chunkers.sqlite_chunker import SQLiteChunker
+from nchain.chunkers.sqlite_chunker import SQLiteChunker
 
 def test_sqlite_chunker():
     """

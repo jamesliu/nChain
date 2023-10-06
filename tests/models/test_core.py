@@ -1,4 +1,4 @@
-from nanochain.models.core import Chunk, Embedding
+from nchain.models.core import Chunk, Embedding
 
 def test_chunk_model():
     data = {"id": 1, "content": "Sample content"}
