@@ -23,7 +23,9 @@ def setup_teardown(test_db_path):
 
 def test_load_data(setup_teardown):
     loader = setup_teardown
-    metadata = loader.load_data(SAMPLE_PAPER_ID, download_dir=SAMPLE_DOWNLOAD_DIR)
+    data = loader.load_data(SAMPLE_PAPER_ID, download_dir=SAMPLE_DOWNLOAD_DIR)
+    content = data["content"]
+    metadata = data["metadata"]
 
     # Check if the expected keys are present in the metadata
     expected_keys = ["paper_id", "title", "authors", "summary", "pdf_path"]

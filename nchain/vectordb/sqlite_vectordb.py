@@ -69,7 +69,6 @@ class SQLiteVectorDB(VectorDatabase):
             }
             self.db["collections"].insert(collection_row, replace=True)
             self.collection = list(self.db["collections"].rows_where("name = ?", [collection]))[0]
-
         if  os.path.exists(indexdb_path):
             self.index = AnnoyIndex(self.dimension, self.collection["metric"])
             self.index.load(indexdb_path)  # Load the Annoy index from disk
