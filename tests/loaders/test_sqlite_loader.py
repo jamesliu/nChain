@@ -9,7 +9,7 @@ def sample_db_path():
     :return: Path to the sample SQLite database.
     """
     # Assuming you have the test.db setup in the mentioned path
-    return "tests/resources/test.db"
+    return "tests/resources/papers.db"
 
 def test_table_names_retrieval(sample_db_path):
     """
