@@ -24,6 +24,8 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install --extras "test"
+        # Ensure CPU-only PyTorch is used
+        poetry run pip install torch==x.x.x+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
     - name: Run tests
       run: |
         poetry run pytest
