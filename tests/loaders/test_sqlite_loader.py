@@ -19,9 +19,8 @@ def test_table_names_retrieval(sample_db_path):
     """
     loader = SQLiteLoader(sample_db_path)
     tables = loader.get_table_names()
-    
     # Assert that the expected table name "SampleTableName" is present in the retrieved list of tables.
-    assert "SampleTableName" in tables
+    assert "papers" in tables
 
 def test_fetch_all_data(sample_db_path):
     """
@@ -31,9 +30,9 @@ def test_fetch_all_data(sample_db_path):
     :param sample_db_path: Path to the sample SQLite database provided by the fixture.
     """
     loader = SQLiteLoader(sample_db_path)
-    data = loader.fetch_all_data("SampleTableName")
+    data = loader.fetch_all_data("papers")
     
     # Validate the data based on what you know is in the test.db
     # Here, we're checking the attributes of the dynamically generated Pydantic model instances.
-    assert data[0].id == 1
-    assert data[0].name == "Sample"
+    assert data[0].paper_id == "2302.01318v1"
+    assert data[0].title == "Accelerating Large Language Model Decoding with Speculative Sampling"
