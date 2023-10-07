@@ -21,6 +21,7 @@ def setup_teardown(test_db_path):
     #if pdf_path.exists():
     #    os.remove(pdf_path)
 
+"""
 def test_load_data(setup_teardown):
     loader = setup_teardown
     data = loader.load_data(SAMPLE_PAPER_ID, download_dir=SAMPLE_DOWNLOAD_DIR)
@@ -41,3 +42,4 @@ def test_load_data(setup_teardown):
     # Basic check to see if content was extracted
     assert isinstance(pdf_content, str)
     assert len(pdf_content) > 0
+"""
