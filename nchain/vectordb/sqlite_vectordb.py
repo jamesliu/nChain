@@ -25,7 +25,7 @@ def decode_from_numpy_to_list(binary):
 
 class SQLiteVectorDB(VectorDatabase):
 
-    def __init__(self, dimension: int, indexdb_path: str, db_path=None, metric: str = "euclidean", collection:str="default"):
+    def __init__(self, dimension: int, indexdb_path: str, db_path=None, metric: str = "angular", collection:str="default"):
         self.dimension = dimension
         self.indexdb_path = indexdb_path
         if db_path:
@@ -58,6 +58,8 @@ class SQLiteVectorDB(VectorDatabase):
         rows = list(self.db["collections"].rows_where("name = ?", [collection]))
         if len(rows) > 0:
             self.collection = rows[0]
+            self.collection["metric"] = metric
+            self.db["collections"].update(self.collection["id"], {"metric":metric} )
         else:
             collection_row = {
                 "name": collection,
@@ -72,7 +74,9 @@ class SQLiteVectorDB(VectorDatabase):
         if  os.path.exists(indexdb_path):
             self.index = AnnoyIndex(self.dimension, self.collection["metric"])
             self.index.load(indexdb_path)  # Load the Annoy index from disk
-        self.vectors_updated = False
+            self.vectors_updated = False
+        else:
+            self.vectors_updated = True
 
     def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict], chunks: list[Union[str, bytes]], store:bool) -> None:
         hashes = [self.content_hash(content) for content in chunks]
