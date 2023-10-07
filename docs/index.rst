@@ -30,3 +30,4 @@ nChain
    models
    embedders
    loaders
+   changelog
