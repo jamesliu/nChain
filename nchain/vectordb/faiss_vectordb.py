@@ -35,3 +35,11 @@ class FaissVectorDB(VectorDatabase):
         # Fetch metadata for the resulting indices
         results = [(int(idx), float(dist), self.metadata[int(idx)]) for idx, dist in zip(indices[0], distances[0])]
         return results
+    
+    # TODO: Implement these methods
+    def update_vector(self, index: int, new_vector: List[float], new_metadata: dict | None = None) -> None:
+        pass
+    
+    # TODO: Implement these methods
+    def delete_vector(self, index: int) -> None:
+        pass
