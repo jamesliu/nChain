@@ -1,5 +1,5 @@
 
-nchain Documentation
+nChain
 ====================
 
 .. toctree::
