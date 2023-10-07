@@ -72,8 +72,6 @@ class SQLiteVectorDB(VectorDatabase):
         if  os.path.exists(indexdb_path):
             self.index = AnnoyIndex(self.dimension, self.collection["metric"])
             self.index.load(indexdb_path)  # Load the Annoy index from disk
-        else:
-            self.build_index()
         self.vectors_updated = False
 
     def store_vectors(self, vectors: List[List[float]], metadata_list: List[dict], chunks: list[Union[str, bytes]], store:bool) -> None:
