@@ -39,9 +39,17 @@ class ArxivLoader(BaseLoader):
         if not download_dir:
             download_dir = str(user_dir() / 'Documents' / 'paper')
         os.makedirs(download_dir, exist_ok=True)
-        pdf_path = paper.download_pdf(download_dir)
+        # Construct the filename based on the paper_id and title
+        pdf_filename = f"{paper.entry_id.split('/')[-1]}.{paper.title.replace(' ', '_').replace('/', '_')}.pdf"
+        pdf_path = os.path.join(download_dir, pdf_filename)
+        if not os.path.exists(pdf_path):
+            pdf_path = paper.download_pdf(download_dir)
+        else:
+            print(f"PDF for {paper_id} already exists at {pdf_path}. Skipping download.")
+
         metadata = {
             "paper_id": paper_id,
+            "entry_id": paper.entry_id,
             "title": paper.title,
             "authors": ", ".join([author.name for author in paper.authors]),
             "summary": paper.summary,
