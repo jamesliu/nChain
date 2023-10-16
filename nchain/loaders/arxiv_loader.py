@@ -48,7 +48,6 @@ class ArxivLoader(BaseLoader):
             pdf_path = paper.download_pdf(download_dir)
         else:
             print(f"PDF for {paper_id} already exists at {pdf_path}. Skipping download.")
-        breakpoint()
         metadata = {
             "paper_id": paper_id,
             "entry_id": paper.entry_id,
