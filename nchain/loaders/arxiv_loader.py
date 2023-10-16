@@ -22,7 +22,9 @@ class ArxivLoader(BaseLoader):
             "authors": str,
             "summary": str,
             "pdf_path": str,
-            "url": str
+            "url": str,
+            "published": str,
+            "updated": str
         }, pk="paper_id", if_not_exists=True)
 
     def load_data(self, source: str, download_dir: Optional[str] = None) -> dict:
@@ -46,7 +48,7 @@ class ArxivLoader(BaseLoader):
             pdf_path = paper.download_pdf(download_dir)
         else:
             print(f"PDF for {paper_id} already exists at {pdf_path}. Skipping download.")
-
+        breakpoint()
         metadata = {
             "paper_id": paper_id,
             "entry_id": paper.entry_id,
@@ -54,7 +56,9 @@ class ArxivLoader(BaseLoader):
             "authors": ", ".join([author.name for author in paper.authors]),
             "summary": paper.summary,
             "pdf_path": str(pdf_path),
-            "url": f"https://arxiv.org/abs/{paper_id}"
+            "url": f"https://arxiv.org/abs/{paper_id}",
+            "published": paper.published.strftime('%Y-%m-%d %H:%M:%S'),
+            "updated": paper.updated.strftime('%Y-%m-%d %H:%M:%S')
         }
         
         # Save metadata to the database
