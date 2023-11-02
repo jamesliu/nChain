@@ -1,8 +1,8 @@
 import pytest
 from nchain.app import App
 
-def test_app_add_and_query(test_db_path, test_indexdb_annoy_path):
-    app = App(db_path=test_db_path, indexdb_path=test_indexdb_annoy_path)
+def test_app_add_and_query(test_db_path, test_embedding_path, test_indexdb_annoy_path):
+    app = App(db_path=test_db_path, vectordb_path=test_embedding_path, indexdb_path=test_indexdb_annoy_path)
 
     # Test add method
     sample_url = "https://arxiv.org/abs/2010.14701"

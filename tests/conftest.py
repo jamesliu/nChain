@@ -32,6 +32,17 @@ def test_db_path():
     return db_path
 
 @pytest.fixture(scope="module")
+def test_embedding_path():
+    """
+    Fixture to provide the path to the sample SQLite database for testing.
+
+    :return: Path to the sample SQLite database.
+    """
+    db_path = "tests/resources/embedding.db"
+    ensure_db_exists(db_path)
+    return db_path
+
+@pytest.fixture(scope="module")
 def test_indexdb_annoy_path():
     """
     Fixture to provide the path to the sample Annoy database for testing.
