@@ -18,6 +18,7 @@ class ArxivLoader(BaseLoader):
         # Ensure the 'papers' table exists
         self.db["papers"].create({
             "paper_id": str,
+            "entry_id": str,
             "title": str,
             "authors": str,
             "summary": str,
