@@ -21,6 +21,7 @@ nChain
    :maxdepth: 2
    :caption: Contents:
 
+   README.md
    bots
    pipeline
    config
