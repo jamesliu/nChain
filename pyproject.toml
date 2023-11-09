@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nChain"
-version = "0.13.post2"
+version = "0.13.post3"
 description = "nchain is a flexible and efficent framework to create LLM bots using embeddings over extensible dataset"
 authors = ["James Liu <james@bayjarvis.com>"]
 license = "Apache License"
@@ -95,7 +95,7 @@ sentence-transformers = "^2.2.2"
 pydantic = "^2.4.2"
 numpy = "^1.26.0"
 annoy = "^1.17.3"
-faiss-gpu = "^1.7.1"
+faiss-cpu = "^1.7.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
