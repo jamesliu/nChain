@@ -15,19 +15,10 @@ class DataPipeline:
         self.chunker = chunker
         self.embedder = embedder
         self.vectordb = vectordb
-        
-    def process(self, source: str, metadata: dict = None, store: bool = True, detail: bool = False) -> Union[None, List[dict]]:
-        """
-        Processes the data source, chunks it, embeds it, and stores the embeddings.
-        
-        :param source: The data source, e.g., a URL or a file path.
-        :param metadata: Additional metadata to store alongside the embeddings.
-        :param store: Flag to indicate if the original text chunk should be stored. Default is True.
-        """
-        # Load data
-        data = self.loader.load_data(source)
+
+    def process_data(self, data: dict, store: bool = True, detail: bool = False) -> Union[None, List[dict]]:
         content = data["content"]
-        metadata = data["metadata"]
+        metadata = data["meta_data"]
         # Chunk data
         chunks = self.chunker.chunk(content)
         chunk_indices = list(range(len(chunks)))
@@ -47,9 +38,27 @@ class DataPipeline:
 
         if detail:
             processed_data = [
-                {"embedding": embedding, "metadata": meta}
+                {"embedding": embedding, "meta_data": meta}
                 for embedding, meta in zip(embeddings, metadatas)
             ]
             return processed_data
-        return None
-
+        return []
+       
+    def process(self, source: str, store: bool = True, detail: bool = False) -> List[dict]:
+        """
+        Processes the data source, chunks it, embeds it, and stores the embeddings.
+        
+        :param source: The data source, e.g., a URL or a file path.
+        :param store: Flag to indicate if the original text chunk should be stored. Default is True.
+        """
+        embeddings = []
+        # Load data
+        res = self.loader.load_data(source)
+        doc_id = res['doc_id'] 
+        data = res['data']
+        if isinstance(data, List):
+            for d in data:
+                embeddings.extend(self.process_data(d, store=store, detail=detail))
+        else:
+            embeddings.extend(self.process_data(data, store=store, detail=detail))
+        return embeddings

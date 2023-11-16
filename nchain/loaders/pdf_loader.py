@@ -16,3 +16,7 @@ class PdfLoader(BaseLoader):
             for page in reader.pages:
                 text += page.extract_text()
         return text
+
+if __name__ == "__main__":
+    loader = PdfLoader()
+    print(loader.load_data("paper.pdf"))

@@ -66,7 +66,8 @@ class ArxivLoader(BaseLoader):
 
         content = self.extract_pdf_content(pdf_path)
         
-        return {"content":content, "metadata":metadata}
+        data = {"content":content, "meta_data":metadata}
+        return { "doc_id": paper_id, "data": data}
 
     def extract_pdf_content(self, pdf_path: str) -> str:
         """
@@ -77,3 +78,11 @@ class ArxivLoader(BaseLoader):
         """
         loader = PdfLoader()
         return loader.load_data(pdf_path)
+
+if __name__ == "__main__":
+    loader = ArxivLoader("test.db")
+    url = "https://arxiv.org/abs/2102.07947"
+    res = loader.load_data(url)
+    print('metadata:', res['metadata'])
+    print('content:', type(res['content']), len(res['content']))
+    print('content:', res['content'][:100])

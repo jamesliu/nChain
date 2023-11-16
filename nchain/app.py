@@ -1,5 +1,5 @@
 from nchain.pipeline import DataPipeline
-from nchain.loaders import ArxivLoader, PdfLoader, SQLiteLoader
+from nchain.loaders import ArxivLoader, PdfLoader, PdfURLLoader, SQLiteLoader
 from nchain.chunkers import TextChunker
 from nchain.vectordb import SQLiteVectorDB
 from nchain.utils.detection import detect_data_type
@@ -28,14 +28,18 @@ class App:
         self.loaders = {
             "ARXIV_PAPER": ArxivLoader(self.db_path),
             "PDF_FILE": PdfLoader(),
+            "PDF_URL": PdfURLLoader(self.db_path),
             "SQLITE_DATA": SQLiteLoader(self.db_path)
         }
 
-        self.vectordbs = {
-            "ARXIV_PAPER": SQLiteVectorDB(dimension=self.embedder.dimension, indexdb_path=indexdb_path, db_path=vectordb_path, collection="axiv_paper")
-        }
         self.chunkers = {
-            "ARXIV_PAPER": TextChunker(max_chars=1000)
+            "ARXIV_PAPER": TextChunker(max_chars=1000),
+            "PDF_URL": TextChunker(max_chars=1000)
+        }
+
+        self.vectordbs = {
+            "ARXIV_PAPER": SQLiteVectorDB(dimension=self.embedder.dimension, indexdb_path=indexdb_path, db_path=vectordb_path, collection="axiv_paper"),
+            "PDF_URL": SQLiteVectorDB(dimension=self.embedder.dimension, indexdb_path=indexdb_path, db_path=vectordb_path, collection="axiv_paper")
         }
 
     def add(self, source: str, data_type: str = None):

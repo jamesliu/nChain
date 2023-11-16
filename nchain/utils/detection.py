@@ -11,10 +11,13 @@ def detect_data_type(source: str) -> str:
     # Check for arXiv papers
     if re.match(r'^https?://arxiv\.org/abs/\d+\.\d+', source):
         return "ARXIV_PAPER"
-    
+
     # Check for PDF files
     if source.endswith('.pdf'):
-        return "PDF_FILE"
+        if source.startswith('http'):
+            return "PDF_URL"
+        else:
+            return "PDF_FILE"
     
     # Check for SQLite data (using a custom URI scheme)
     if source.startswith('sqlite:///'):
