@@ -4,6 +4,7 @@ from nchain.chunkers import BaseChunker, TextChunker
 from nchain.embedders import BaseEmbedder
 from nchain.vectordb import VectorDatabase
 from nchain.utils.sqlite_logger import logger
+from nchain.utils.helpers import sanitize_input
 
 class DataPipeline:
     def __init__(self, 
@@ -18,6 +19,7 @@ class DataPipeline:
 
     def process_data(self, data: dict, store: bool = True, detail: bool = False) -> Union[None, List[dict]]:
         content = data["content"]
+        content = sanitize_input(content)
         metadata = data["meta_data"]
         # Chunk data
         chunks = self.chunker.chunk(content)

@@ -32,3 +32,18 @@ def clean_string(text):
     cleaned_text = re.sub(r"([^\w\s])\1*", r"\1", cleaned_text)
 
     return cleaned_text
+
+def sanitize_input(input_text):
+    # Replace specific special characters with their ASCII equivalents or remove them
+    replacements = {
+        '♢': '',   # Remove this character
+        '♠': '',   # Remove this character
+        '🧰': '',  # Remove this character
+        '👱': '',  # Remove this character
+        '\udd28': ' ', # Remove this character
+        # Add more replacements as needed
+    }
+    for original, replacement in replacements.items():
+        input_text = input_text.replace(original, replacement)
+
+    return input_text
